@@ -7,12 +7,29 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace pokedex_back.Migrations
 {
     /// <inheritdoc />
-    public partial class tableusers : Migration
+    public partial class capturedpokemonstableupdated2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "capturedPokemons",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    pokemonName = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    userId = table.Column<long>(type: "bigint", nullable: false),
+                    capturedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_capturedPokemons", x => x.id);
+                })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -37,6 +54,12 @@ namespace pokedex_back.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
+                name: "IX_capturedPokemons_pokemonName",
+                table: "capturedPokemons",
+                column: "pokemonName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_users_username",
                 table: "users",
                 column: "username",
@@ -46,6 +69,9 @@ namespace pokedex_back.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "capturedPokemons");
+
             migrationBuilder.DropTable(
                 name: "users");
         }

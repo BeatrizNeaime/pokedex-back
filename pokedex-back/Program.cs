@@ -63,8 +63,8 @@ builder
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Issuer"],
+            ValidIssuer = builder.Configuration["JWT:Issuer"],
+            ValidAudience = builder.Configuration["JWT:Issuer"],
             IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])
             ),
@@ -73,6 +73,7 @@ builder
 
 builder.Services.AddScoped<UserRepository, UserRepository>();
 builder.Services.AddScoped<AuthRepository, AuthRepository>();
+builder.Services.AddScoped<PokemonRepository, PokemonRepository>();
 
 var app = builder.Build();
 
@@ -86,8 +87,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowOrigins");
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
