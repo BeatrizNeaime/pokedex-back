@@ -22,6 +22,36 @@ namespace pokedex_back.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("pokedex_back.Models.CapturedPokemon", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CapturedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("capturedAt");
+
+                    b.Property<string>("PokemonName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("pokemonName");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("userId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PokemonName")
+                        .IsUnique();
+
+                    b.ToTable("capturedPokemons");
+                });
+
             modelBuilder.Entity("pokedex_back.Models.User", b =>
                 {
                     b.Property<long>("Id")
