@@ -32,6 +32,22 @@ namespace pokedex_back.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost]
+        [Route("release")]
+        public async Task<IActionResult> ReleasePokemon([FromBody] ReleasePokemonDTO release)
+        {
+            try
+            {
+                var pokemon = await _pokemonRepository.ReleasePokemon(release);
+                return Ok(pokemon);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet]
         [Route("captured")]
         public async Task<IActionResult> GetCapturedPokemons()

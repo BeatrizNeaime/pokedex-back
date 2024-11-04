@@ -111,5 +111,24 @@ namespace pokedex_back.Repositories
                 throw new Exception(e.Message);
             }
         }
+
+        public async Task<bool> ReleasePokemon(ReleasePokemonDTO release)
+        {
+            try
+            {
+                var capture =
+                    await _context.CapturedPokemons.FirstOrDefaultAsync(x => x.PokemonName == release.PokemonName && x.UserId == release.UserId)
+                    ?? throw new Exception("Pokemon not found");
+
+                _context.CapturedPokemons.Remove(capture);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
     }
 }
