@@ -43,13 +43,18 @@ namespace pokedex_back.Repositories
             }
         }
 
-        public async Task<bool> DeleteUser(long id)
+        public async Task<bool> DeleteUser(DeleteUserDTO deleteUserDTO)
         {
             try
             {
                 var user =
-                    await _context.Users.FirstOrDefaultAsync(x => x.Id == id)
+                    await _context.Users.FirstOrDefaultAsync(x => x.Id == deleteUserDTO.Id)
                     ?? throw new Exception("User not found");
+
+                if (!user.CheckPassword(deleteUserDTO.Password))
+                {
+                    throw new Exception("Invalid password");
+                }
 
                 _context.Users.Remove(user);
                 _context.SaveChanges();
@@ -123,29 +128,34 @@ namespace pokedex_back.Repositories
             try
             {
                 var userToUpdate =
-                    await GetUserById(user.Id) ?? throw new Exception("User not found");
+                    await _context.Users.FirstOrDefaultAsync(x => x.Id == user.Id)
+                    ?? throw new Exception("User not found");
 
-                var updatedUser = new User
+                if (user.Username != userToUpdate.Username)
                 {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Username = user.Username,
-                    UpdatedAt = user.UpdatedAt,
-                };
+                    var previousUser = await GetUserByUserName(user.Username);
+
+                    if (previousUser != null)
+                    {
+                        throw new Exception("Username already exists");
+                    }
+
+                    userToUpdate.Username = user.Username;
+                }
 
                 if (!string.IsNullOrEmpty(user.Password))
                 {
-                    updatedUser.SetPassword(user.Password);
+                    userToUpdate.SetPassword(user.Password);
                 }
 
-                _context.Users.Update(updatedUser);
+                _context.Users.Update(userToUpdate);
                 await _context.SaveChangesAsync();
 
                 return new UserDTO
                 {
-                    Id = updatedUser.Id,
-                    Name = updatedUser.Name,
-                    Username = updatedUser.Username,
+                    Id = userToUpdate.Id,
+                    Name = userToUpdate.Name,
+                    Username = userToUpdate.Username,
                 };
             }
             catch (Exception e)

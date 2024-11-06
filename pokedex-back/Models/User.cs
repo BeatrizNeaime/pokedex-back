@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
 
 namespace pokedex_back.Models
 {
@@ -36,6 +37,21 @@ namespace pokedex_back.Models
                 Salt = hmac.Key;
                 Hash = hmac.ComputeHash(passwordBytes);
             }
+        }
+
+        public bool CheckPassword(string password)
+        {
+            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+            using (var hmac = new System.Security.Cryptography.HMACSHA512(Salt))
+            {
+                var computedHash = hmac.ComputeHash(passwordBytes);
+                if (!computedHash.SequenceEqual(Hash))
+                {
+                    throw new Exception("Invalid password");
+                }
+            }
+
+            return true;
         }
     }
 }

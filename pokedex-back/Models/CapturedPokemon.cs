@@ -20,11 +20,19 @@ namespace pokedex_back.Models
         public string PokemonName { get; set; } = string.Empty;
 
         [Required]
+        [Column("pokemonUrl")]
+        public string PokemonUrl { get; set; } = string.Empty;
+
+        [Required]
         [Column("userId")]
         public long UserId { get; set; }
 
         [Required]
         [Column("capturedAt")]
         public DateTime CapturedAt { get; set; } = DateTime.Now;
+
+        [ForeignKey("UserId")]
+        public User? User { get; set; }
+
     }
 }

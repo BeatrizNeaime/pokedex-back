@@ -11,7 +11,7 @@ namespace pokedex_back.Interfaces
         Task<CapturedPokemonsDTO> CapturePokemon(CapturePokemonDTO capture);
         Task<IEnumerable<CapturedPokemonsDTO>> GetCapturedPokemons();
         Task<bool> CheckPokemonExists(string pokemonName);
-        Task<int> GetCapturedPokemonsByUser(long id);
+        Task<IEnumerable<CapturedPokemonsDTO>> GetCapturedPokemonsByUser(long id);
         Task<bool> ReleasePokemon(ReleasePokemonDTO release);
     }
 }

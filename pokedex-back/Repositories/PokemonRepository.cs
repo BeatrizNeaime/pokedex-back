@@ -110,11 +110,13 @@ namespace pokedex_back.Repositories
                                 capturedPokemon.PokemonName,
                                 capturedPokemon.CapturedAt,
                                 user.Username,
+                                capturedPokemon.PokemonUrl,
                             }
                     )
                     .Select(x => new CapturedPokemonsDTO
                     {
                         PokemonName = x.PokemonName,
+                        PokemonUrl = x.PokemonUrl,
                         CapturedAt = x.CapturedAt,
                         User = new UserDTO { Username = x.Username },
                     })
@@ -126,11 +128,33 @@ namespace pokedex_back.Repositories
             }
         }
 
-        public async Task<int> GetCapturedPokemonsByUser(long id)
+        public async Task<IEnumerable<CapturedPokemonsDTO>> GetCapturedPokemonsByUser(long id)
         {
             try
             {
-                return await _context.CapturedPokemons.CountAsync(x => x.UserId == id);
+                var captured = await _context
+                    .CapturedPokemons.Where(x => x.UserId == id)
+                    .Join(
+                        _context.Users,
+                        users => users.UserId,
+                        user => user.Id,
+                        (users, user) => new { users, user }
+                    )
+                    .Select(x => new CapturedPokemonsDTO
+                    {
+                        PokemonName = x.users.PokemonName,
+                        PokemonUrl = x.users.PokemonUrl,
+                        CapturedAt = x.users.CapturedAt,
+                        User = new UserDTO
+                        {
+                            Username = x.user.Username,
+                            Id = x.user.Id,
+                            Name = x.user.Name,
+                        },
+                    })
+                    .ToListAsync();
+
+                return captured;
             }
             catch (Exception e)
             {
