@@ -40,7 +40,7 @@ namespace pokedex_back.Repositories
                     _configuration["JWT:Issuer"],
                     _configuration["JWT:Audience"],
                     claims,
-                    expires: DateTime.Now.AddHours(1),
+                    expires: DateTime.Now.AddHours(4),
                     signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
                 );
 

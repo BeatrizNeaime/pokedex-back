@@ -29,6 +29,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddConnections();
 
+builder.Services.AddSignalR();
+
 builder.Services.AddDbContext<Context>(opt =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -72,11 +74,13 @@ builder
         };
     });
 
-builder.Services.AddSignalR();
+
 
 builder.Services.AddScoped<UserRepository, UserRepository>();
 builder.Services.AddScoped<AuthRepository, AuthRepository>();
 builder.Services.AddScoped<PokemonRepository, PokemonRepository>();
+
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 var app = builder.Build();
 

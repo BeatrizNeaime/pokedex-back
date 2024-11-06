@@ -42,29 +42,25 @@ namespace pokedex_back.Repositories
                     var pokemonExists = await CheckPokemonExists(capture.PokemonName);
                     if (pokemonExists)
                     {
-                        throw new InvalidOperationException("Pokemon already captured");
+                        throw new Exception("Pokemon already captured");
                     }
 
-                    if (await GetCapturedPokemonsByUser(user.Id) >= 3)
+                    var captured = await GetCapturedPokemonsByUser(user.Id);
+
+                    if (captured.Count()  >= 3)
                     {
-                        throw new InvalidOperationException("User already captured 3 pokemons");
+                        throw new Exception("User already captured 3 pokemons");
                     }
 
                     var capturedPokemon = new CapturedPokemon
                     {
                         UserId = user.Id,
                         PokemonName = capture.PokemonName,
+                        PokemonUrl = capture.PokemonUrl,
                     };
 
                     await _context.CapturedPokemons.AddAsync(capturedPokemon);
-                    await _context.SaveChangesAsync();
-
-                    await _hubContext.Clients.All.SendAsync(
-                        "PokemonCaptured",
-                        user.Id,
-                        capture.PokemonName,
-                        capturedPokemon.CapturedAt
-                    );
+                    await _context.SaveChangesAsync();                  
 
                     await transaction.CommitAsync();
 
@@ -73,12 +69,13 @@ namespace pokedex_back.Repositories
                         PokemonName = capturedPokemon.PokemonName,
                         CapturedAt = capturedPokemon.CapturedAt,
                         User = new UserDTO { Username = user.Username },
+                        PokemonUrl = capturedPokemon.PokemonUrl,
                     };
                 }
                 catch (Exception e)
                 {
                     await transaction.RollbackAsync();
-                    throw new Exception(e.ToString());
+                    throw new Exception(e.Message);
                 }
             });
         }
