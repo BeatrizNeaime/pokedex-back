@@ -9,5 +9,6 @@ namespace pokedex_back.DTOs.Pokemon
     {
         public long UserId { get; set; }
         public string PokemonName { get; set; } = string.Empty;
+        public string PokemonUrl { get; set; } = string.Empty;
     }
 }

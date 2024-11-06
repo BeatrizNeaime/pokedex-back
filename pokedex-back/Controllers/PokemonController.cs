@@ -62,5 +62,21 @@ namespace pokedex_back.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [Authorize]
+        [HttpGet]
+        [Route("captured-by/{id}")]
+        public async Task<IActionResult> GetCapturedByUser(long id)
+        {
+            try
+            {
+                var pokemon = await _pokemonRepository.GetCapturedPokemonsByUser(id);
+                return Ok(pokemon);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

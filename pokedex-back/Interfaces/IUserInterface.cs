@@ -12,6 +12,6 @@ namespace pokedex_back.Interfaces
         Task<User> GetUserByUserName(string userName);
         Task<UserDTO> GetUserById(long id);
         Task<UserDTO> UpdateUser(UpdateUserDTO user);
-        Task<bool> DeleteUser(long id);
+        Task<bool> DeleteUser(DeleteUserDTO user);
     }
 }

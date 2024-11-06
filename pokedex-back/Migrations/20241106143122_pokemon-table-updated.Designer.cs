@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using pokedex_back.Data;
 
@@ -11,9 +12,11 @@ using pokedex_back.Data;
 namespace pokedex_back.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20241106143122_pokemon-table-updated")]
+    partial class pokemontableupdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,8 +56,6 @@ namespace pokedex_back.Migrations
 
                     b.HasIndex("PokemonName")
                         .IsUnique();
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("capturedPokemons");
                 });
@@ -102,17 +103,6 @@ namespace pokedex_back.Migrations
                         .IsUnique();
 
                     b.ToTable("users");
-                });
-
-            modelBuilder.Entity("pokedex_back.Models.CapturedPokemon", b =>
-                {
-                    b.HasOne("pokedex_back.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }
