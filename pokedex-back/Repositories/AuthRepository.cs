@@ -60,15 +60,9 @@ namespace pokedex_back.Repositories
                     await _userRepository.GetUserByUserName(login.Username)
                     ?? throw new Exception("User not found");
 
-                using var hmac = new HMACSHA512(user.Salt);
-                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(login.Password));
-
-                for (int i = 0; i < computedHash.Length; i++)
+                if (!user.CheckPassword(login.Password))
                 {
-                    if (computedHash[i] != user.Hash[i])
-                    {
-                        throw new Exception("Invalid password");
-                    }
+                    throw new Exception("Invalid password");
                 }
 
                 return new UserDTO

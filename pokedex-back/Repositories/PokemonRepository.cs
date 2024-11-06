@@ -33,7 +33,9 @@ namespace pokedex_back.Repositories
                     throw new Exception("Pokemon already captured");
                 }
 
-                if (await GetCapturedPokemonsByUser(user.Id) == 3)
+                var captured = await GetCapturedPokemonsByUser(user.Id);
+
+                if (captured.Count() >= 3)
                 {
                     throw new Exception("User already has 3 pokemons");
                 }
@@ -42,6 +44,7 @@ namespace pokedex_back.Repositories
                 {
                     UserId = user.Id,
                     PokemonName = capture.PokemonName,
+                    PokemonUrl = capture.PokemonUrl,
                 };
 
                 await _context.CapturedPokemons.AddAsync(capturedPokemon);
@@ -84,11 +87,13 @@ namespace pokedex_back.Repositories
                                 capturedPokemon.PokemonName,
                                 capturedPokemon.CapturedAt,
                                 user.Username,
+                                capturedPokemon.PokemonUrl,
                             }
                     )
                     .Select(x => new CapturedPokemonsDTO
                     {
                         PokemonName = x.PokemonName,
+                        PokemonUrl = x.PokemonUrl,
                         CapturedAt = x.CapturedAt,
                         User = new UserDTO { Username = x.Username },
                     })
@@ -100,11 +105,33 @@ namespace pokedex_back.Repositories
             }
         }
 
-        public async Task<int> GetCapturedPokemonsByUser(long id)
+        public async Task<IEnumerable<CapturedPokemonsDTO>> GetCapturedPokemonsByUser(long id)
         {
             try
             {
-                return await _context.CapturedPokemons.CountAsync(x => x.UserId == id);
+                var captured = await _context
+                    .CapturedPokemons.Where(x => x.UserId == id)
+                    .Join(
+                        _context.Users,
+                        users => users.UserId,
+                        user => user.Id,
+                        (users, user) => new { users, user }
+                    )
+                    .Select(x => new CapturedPokemonsDTO
+                    {
+                        PokemonName = x.users.PokemonName,
+                        PokemonUrl = x.users.PokemonUrl,
+                        CapturedAt = x.users.CapturedAt,
+                        User = new UserDTO
+                        {
+                            Username = x.user.Username,
+                            Id = x.user.Id,
+                            Name = x.user.Name,
+                        },
+                    })
+                    .ToListAsync();
+
+                return captured;
             }
             catch (Exception e)
             {
@@ -117,8 +144,9 @@ namespace pokedex_back.Repositories
             try
             {
                 var capture =
-                    await _context.CapturedPokemons.FirstOrDefaultAsync(x => x.PokemonName == release.PokemonName && x.UserId == release.UserId)
-                    ?? throw new Exception("Pokemon not found");
+                    await _context.CapturedPokemons.FirstOrDefaultAsync(x =>
+                        x.PokemonName == release.PokemonName && x.UserId == release.UserId
+                    ) ?? throw new Exception("Pokemon not found");
 
                 _context.CapturedPokemons.Remove(capture);
                 await _context.SaveChangesAsync();

@@ -47,11 +47,11 @@ namespace pokedex_back.Controllers
         [Authorize]
         [HttpDelete]
         [Route("delete")]
-        public async Task<IActionResult> DeleteUser([FromBody] long id)
+        public async Task<IActionResult> DeleteUser([FromBody] DeleteUserDTO deleteUserDTO)
         {
             try
             {
-                await _userRepository.DeleteUser(id);
+                await _userRepository.DeleteUser(deleteUserDTO);
                 return Ok();
             }
             catch (Exception e)
