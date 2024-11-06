@@ -40,8 +40,11 @@ namespace pokedex_back.Hubs
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError(e, "Error capturing Pokemon for User: {UserId}", capturePokemonDTO.UserId);
+
+                await Clients.Caller.SendAsync("CapturePokemonFailed", new { message = "An error occurred on the server while capturing the Pokémon." });
             }
         }
+
     }
 }
