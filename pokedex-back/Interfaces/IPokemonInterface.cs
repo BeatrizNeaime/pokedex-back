@@ -8,7 +8,7 @@ namespace pokedex_back.Interfaces
 {
     public interface IPokemonInterface
     {
-        Task<bool> CapturePokemon(CapturePokemonDTO capture);
+        Task<CapturedPokemonsDTO> CapturePokemon(CapturePokemonDTO capture);
         Task<IEnumerable<CapturedPokemonsDTO>> GetCapturedPokemons();
         Task<bool> CheckPokemonExists(string pokemonName);
         Task<int> GetCapturedPokemonsByUser(long id);

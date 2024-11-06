@@ -1,67 +1,93 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using pokedex_back.Data;
 using pokedex_back.DTOs;
 using pokedex_back.DTOs.Pokemon;
+using pokedex_back.Hubs;
 using pokedex_back.Interfaces;
 using pokedex_back.Models;
 
 namespace pokedex_back.Repositories
 {
-    public class PokemonRepository(Context context, UserRepository userRepository)
-        : IPokemonInterface
+    public class PokemonRepository : IPokemonInterface
     {
-        private readonly Context _context = context;
-        private readonly UserRepository _userRepository = userRepository;
+        private readonly Context _context;
+        private readonly UserRepository _userRepository;
+        private readonly IHubContext<PokemonHub> _hubContext;
 
-        public async Task<bool> CapturePokemon(CapturePokemonDTO capture)
+        public PokemonRepository(
+            Context context,
+            UserRepository userRepository,
+            IHubContext<PokemonHub> hubContext
+        )
         {
-            try
+            _context = context;
+            _userRepository = userRepository;
+            _hubContext = hubContext;
+        }
+
+        public Task<CapturedPokemonsDTO> CapturePokemon(CapturePokemonDTO capture)
+        {
+            var strategy = _context.Database.CreateExecutionStrategy();
+
+            return strategy.ExecuteAsync(async () =>
             {
-                var user =
-                    await _userRepository.GetUserById(capture.UserId)
-                    ?? throw new Exception("User not found");
-
-                var pokemon = await CheckPokemonExists(capture.PokemonName);
-
-                if (pokemon)
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    throw new Exception("Pokemon already captured");
+                    var user =
+                        await _userRepository.GetUserById(capture.UserId)
+                        ?? throw new Exception("User not found");
+
+                    var pokemonExists = await CheckPokemonExists(capture.PokemonName);
+                    if (pokemonExists)
+                    {
+                        throw new InvalidOperationException("Pokemon already captured");
+                    }
+
+                    if (await GetCapturedPokemonsByUser(user.Id) >= 3)
+                    {
+                        throw new InvalidOperationException("User already captured 3 pokemons");
+                    }
+
+                    var capturedPokemon = new CapturedPokemon
+                    {
+                        UserId = user.Id,
+                        PokemonName = capture.PokemonName,
+                    };
+
+                    await _context.CapturedPokemons.AddAsync(capturedPokemon);
+                    await _context.SaveChangesAsync();
+
+                    await _hubContext.Clients.All.SendAsync(
+                        "PokemonCaptured",
+                        user.Id,
+                        capture.PokemonName,
+                        capturedPokemon.CapturedAt
+                    );
+
+                    await transaction.CommitAsync();
+
+                    return new CapturedPokemonsDTO
+                    {
+                        PokemonName = capturedPokemon.PokemonName,
+                        CapturedAt = capturedPokemon.CapturedAt,
+                        User = new UserDTO { Username = user.Username },
+                    };
                 }
-
-                if (await GetCapturedPokemonsByUser(user.Id) == 3)
+                catch (Exception e)
                 {
-                    throw new Exception("User already has 3 pokemons");
+                    await transaction.RollbackAsync();
+                    throw new Exception(e.ToString());
                 }
-
-                var capturedPokemon = new CapturedPokemon
-                {
-                    UserId = user.Id,
-                    PokemonName = capture.PokemonName,
-                };
-
-                await _context.CapturedPokemons.AddAsync(capturedPokemon);
-                await _context.SaveChangesAsync();
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
+            });
         }
 
         public async Task<bool> CheckPokemonExists(string pokemonName)
         {
             try
             {
-                return await _context.CapturedPokemons.FirstOrDefaultAsync(x =>
-                        x.PokemonName == pokemonName
-                    ) != null;
+                return await _context.CapturedPokemons.AnyAsync(x => x.PokemonName == pokemonName);
             }
             catch (Exception e)
             {
@@ -117,8 +143,9 @@ namespace pokedex_back.Repositories
             try
             {
                 var capture =
-                    await _context.CapturedPokemons.FirstOrDefaultAsync(x => x.PokemonName == release.PokemonName && x.UserId == release.UserId)
-                    ?? throw new Exception("Pokemon not found");
+                    await _context.CapturedPokemons.FirstOrDefaultAsync(x =>
+                        x.PokemonName == release.PokemonName && x.UserId == release.UserId
+                    ) ?? throw new Exception("Pokemon not found");
 
                 _context.CapturedPokemons.Remove(capture);
                 await _context.SaveChangesAsync();
