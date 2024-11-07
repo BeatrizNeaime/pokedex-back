@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using pokedex_back.Data;
+using pokedex_back.Hubs;
 using pokedex_back.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddConnections();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<Context>(opt =>
 {
@@ -71,9 +74,13 @@ builder
         };
     });
 
+
+
 builder.Services.AddScoped<UserRepository, UserRepository>();
 builder.Services.AddScoped<AuthRepository, AuthRepository>();
 builder.Services.AddScoped<PokemonRepository, PokemonRepository>();
+
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 var app = builder.Build();
 
@@ -91,5 +98,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<PokemonHub>("/pokemonHub");
 
 app.Run();
