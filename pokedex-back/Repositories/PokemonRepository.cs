@@ -47,7 +47,7 @@ namespace pokedex_back.Repositories
 
                     var captured = await GetCapturedPokemonsByUser(user.Id);
 
-                    if (captured.Count()  >= 3)
+                    if (captured.Count() >= 3)
                     {
                         throw new Exception("User already captured 3 pokemons");
                     }
@@ -60,7 +60,7 @@ namespace pokedex_back.Repositories
                     };
 
                     await _context.CapturedPokemons.AddAsync(capturedPokemon);
-                    await _context.SaveChangesAsync();                  
+                    await _context.SaveChangesAsync();
 
                     await transaction.CommitAsync();
 
@@ -159,24 +159,35 @@ namespace pokedex_back.Repositories
             }
         }
 
-        public async Task<bool> ReleasePokemon(ReleasePokemonDTO release)
+        public Task<ReleasePokemonDTO> ReleasePokemon(ReleasePokemonDTO release)
         {
-            try
-            {
-                var capture =
-                    await _context.CapturedPokemons.FirstOrDefaultAsync(x =>
-                        x.PokemonName == release.PokemonName && x.UserId == release.UserId
-                    ) ?? throw new Exception("Pokemon not found");
+            var strategy = _context.Database.CreateExecutionStrategy();
 
-                _context.CapturedPokemons.Remove(capture);
-                await _context.SaveChangesAsync();
-
-                return true;
-            }
-            catch (Exception e)
+            return strategy.ExecuteAsync(async () =>
             {
-                throw new Exception(e.Message);
-            }
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    var capture =
+                        await _context.CapturedPokemons.FirstOrDefaultAsync(x =>
+                            x.PokemonName == release.PokemonName && x.UserId == release.UserId
+                        ) ?? throw new Exception("Pokemon not found");
+
+                    _context.CapturedPokemons.Remove(capture);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+
+                    return release;
+                }
+                catch (Exception e)
+                {
+                    await transaction.RollbackAsync();
+                    throw new Exception(e.Message);
+                }
+            });
+
+           
         }
     }
 }
