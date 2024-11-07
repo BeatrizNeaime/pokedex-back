@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: pokedex-back
+    env: docker
+    buildCommand: "docker build -t pokedex-back ."
+    startCommand: "docker run -d -p 80:80 pokedex-back"
+    repo: https://github.com/BeatrizNeaime/pokedex-back
+    branch: main
+    plan: starter
+    envVars:
+      - key: JWT_SECRET
+        value: "olLX1u8EI3ncKcWeM0hxMSAIXkmld5gB"
+      - key: JWT_ISSUER
+        value: "http://localhost:3000"
+      - key: DB_CONNECTION_STRING
+        value: "server=srv1183.hstgr.io;user=u699353760_pokedex;password=uzyb4ENwghzC0A2oK7mr;database=u699353760_pokedex;"
