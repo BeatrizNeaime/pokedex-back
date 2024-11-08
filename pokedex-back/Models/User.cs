@@ -18,10 +18,10 @@ namespace pokedex_back.Models
         public string Name { get; set; } = string.Empty;
 
         [Column("hash")]
-        public byte[] Hash { get; set; } = [];
+        public byte[] Hash { get; set; }
 
         [Column("salt")]
-        public byte[] Salt { get; set; } = [];
+        public byte[] Salt { get; set; }
 
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;

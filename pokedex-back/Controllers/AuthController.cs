@@ -5,9 +5,14 @@ using pokedex_back.Repositories;
 namespace pokedex_back.Controllers
 {
     [Route("auth")]
-    public class AuthController(AuthRepository authRepository) : Controller
+    public class AuthController: Controller
     {
-        private readonly AuthRepository _authRepository = authRepository;
+        private readonly AuthRepository _authRepository;
+
+        public AuthController(AuthRepository authRepository)
+        {
+            _authRepository = authRepository;
+        }
 
         [HttpPost]
         [Route("login")]

@@ -8,9 +8,14 @@ using pokedex_back.Repositories;
 namespace pokedex_back.Controllers
 {
     [Route("/user")]
-    public class UserController(UserRepository userRepository) : Controller
+    public class UserController : Controller
     {
-        private readonly UserRepository _userRepository = userRepository;
+        private readonly UserRepository _userRepository;
+
+        public UserController(UserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
 
         [Authorize]
         [HttpGet]

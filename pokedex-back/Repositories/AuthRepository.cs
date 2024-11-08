@@ -1,25 +1,28 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using pokedex_back.Data;
 using pokedex_back.DTOs;
 using pokedex_back.DTOs.Auth;
 using pokedex_back.Interfaces;
 using pokedex_back.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace pokedex_back.Repositories
 {
-    public class AuthRepository(
-        Context context,
-        UserRepository userRepository,
-        IConfiguration configuration
-    ) : IAuthInterface
+    public class AuthRepository: IAuthInterface
     {
-        private readonly Context _context = context;
-        private readonly UserRepository _userRepository = userRepository;
-        private readonly IConfiguration _configuration = configuration;
+        private readonly Context _context;
+        private readonly UserRepository _userRepository;
+        private readonly IConfiguration _configuration;
+
+        public AuthRepository(Context context, IConfiguration configuration)
+        {
+            _context = context;
+            _userRepository = new UserRepository(context);
+            _configuration = configuration;
+        }
 
         public string GenerateToken(User user)
         {

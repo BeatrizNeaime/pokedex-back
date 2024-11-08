@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using pokedex_back.Data;
@@ -12,18 +11,15 @@ using pokedex_back.Data;
 namespace pokedex_back.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20241103160507_captured-pokemons-table-updated2")]
-    partial class capturedpokemonstableupdated2
+    [Migration("20241108003644_tables")]
+    partial class tables
     {
-        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "6.0.35")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("pokedex_back.Models.CapturedPokemon", b =>
                 {
@@ -31,8 +27,6 @@ namespace pokedex_back.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CapturedAt")
                         .HasColumnType("datetime(6)")
@@ -43,6 +37,11 @@ namespace pokedex_back.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("pokemonName");
 
+                    b.Property<string>("PokemonUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("pokemonUrl");
+
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")
                         .HasColumnName("userId");
@@ -51,6 +50,8 @@ namespace pokedex_back.Migrations
 
                     b.HasIndex("PokemonName")
                         .IsUnique();
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("capturedPokemons");
                 });
@@ -61,8 +62,6 @@ namespace pokedex_back.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
@@ -98,6 +97,17 @@ namespace pokedex_back.Migrations
                         .IsUnique();
 
                     b.ToTable("users");
+                });
+
+            modelBuilder.Entity("pokedex_back.Models.CapturedPokemon", b =>
+                {
+                    b.HasOne("pokedex_back.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }
