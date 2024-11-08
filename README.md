@@ -3,11 +3,11 @@
 O Pokédex Back é o resultado da segunda parte do meu teste técnico para a vaga de Desenvolvedor Full Stack na Sistema ESO; e permite aos usuários:
 * criar uma conta;
 * capturar Pokémons; e
-* libertar pokemons.
+* libertar pokémons.
 
 Você pode acessá-la [neste link](https://pokedex-seven-inky.vercel.app)
 
-## Tenologias Utilizadas
+## Tecnologias Utilizadas
 - **ASP.NET Core 6**: Framework para construir a API RESTful.
 - **Entity Framework Core**: ORM para o mapeamento de dados e comunicação com o banco MySQL.
 - **MySQL**: Banco de dados para armazenar informações usuários e capturas.
@@ -24,7 +24,7 @@ Você pode acessá-la [neste link](https://pokedex-seven-inky.vercel.app)
 
 ### rotas sem autenticação
 - /auth/register: registro de usuários
-- auth/login: login de usuários e obtenção de token JWT
+- /auth/login: login de usuários e obtenção de token JWT
 
 ### rotas protegidas
 - /pokemon/captured-by/{id}: retorna os pokémons capturados por um usuário específico
