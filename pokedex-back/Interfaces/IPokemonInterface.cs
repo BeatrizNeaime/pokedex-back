@@ -1,8 +1,8 @@
+using pokedex_back.DTOs.Pokemon;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using pokedex_back.DTOs.Pokemon;
 
 namespace pokedex_back.Interfaces
 {

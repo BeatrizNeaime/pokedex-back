@@ -1,20 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using pokedex_back.DTOs.Pokemon;
 using pokedex_back.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace pokedex_back.Controllers
 {
     [Route("pokemon")]
-    public class PokemonController(PokemonRepository pokemonRepository) : Controller
+    public class PokemonController : Controller
     {
-        private readonly PokemonRepository _pokemonRepository = pokemonRepository;
+        private readonly PokemonRepository _pokemonRepository;
+
+        public PokemonController(PokemonRepository pokemonRepository)
+        {
+            _pokemonRepository = pokemonRepository;
+        }
 
         [Authorize]
         [HttpPost]

@@ -8,9 +8,14 @@ using pokedex_back.Models;
 
 namespace pokedex_back.Repositories
 {
-    public class UserRepository(Context context) : IUserInterface
+    public class UserRepository : IUserInterface
     {
-        private readonly Context _context = context;
+        private readonly Context _context;
+
+        public UserRepository(Context context)
+        {
+            _context = context;
+        }
 
         public async Task<UserDTO> CreateUser(RegisterDTO user)
         {

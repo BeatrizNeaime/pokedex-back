@@ -33,7 +33,7 @@ builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<Context>(opt =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    var connectionString = builder.Configuration.GetConnectionString("Database");
     var serverVersion = ServerVersion.Parse("8.0.25-mysql");
 
     opt.UseMySql(
